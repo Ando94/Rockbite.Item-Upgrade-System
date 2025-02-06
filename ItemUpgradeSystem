@@ -1,0 +1,113 @@
+package rockbite;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+class Item {
+    String name;
+    String rarity;
+    int upgradeCount;
+
+    public Item(String name, String rarity, int upgradeCount) {
+        this.name = name;
+        this.rarity = rarity;
+        this.upgradeCount = upgradeCount;
+    }
+
+    @Override
+    public String toString() {
+        return rarity +  " " + name;
+    }
+}
+
+   
+class Inventory {
+    private Map<String, List<Item>> items = new HashMap<>();
+
+    public void addItem(Item item) {
+        items.computeIfAbsent(item.name, k -> new ArrayList<>()).add(item);
+    }
+
+    public void displayInventory() {
+        if (items.isEmpty()) {
+            System.out.println("Inventory is empty.");
+            return;
+        }
+        System.out.println("Inventory:");
+        for (List<Item> itemList : items.values()) {
+            for (Item item : itemList) {
+                System.out.println("- " + item);
+            }
+        }
+    }
+
+    public void upgradeItem(String itemName) {
+        List<Item> itemList = items.get(itemName);
+        if (itemList == null || itemList.size() <= 1) {
+            System.out.println("Not enough items to upgrade " + itemName);
+            return;
+        }
+        
+        Item baseItem = itemList.get(0);
+        String nextRarity = upgradeRarity(itemList);
+        if (nextRarity == null) {
+            System.out.println("Cannot upgrade " + itemName + " further.");
+            return;
+        }
+        
+        itemList.clear();
+        addItem(new Item(itemName, nextRarity, nextRarity.startsWith("Epic") ? baseItem.upgradeCount + 1 : 0));
+        
+        System.out.println(itemName + " upgraded to " + nextRarity);
+   
+    }
+
+    private String upgradeRarity(List<Item> itemList) {
+    	   if(itemList.size() == 2) {
+          	if(itemList.get(0).rarity.equals("Epic") && itemList.get(1).rarity.equals("Epic")) {
+          		return "Epic 1";
+          	}
+          	else
+          	if(itemList.get(0).rarity.equals("Epic 1") || itemList.get(0).rarity.equals("Epic") 
+          			&& (itemList.get(1).rarity.equals("Epic 1") || itemList.get(1).rarity.equals("Epic"))) {
+          		return "Epic 2";
+          	} else
+              if(itemList.get(0).rarity.equals("Epic 2") && itemList.get(0).rarity.equals("Epic 2")) {
+              	return "Legendary";
+              }
+          }
+           else
+          if(itemList.size() == 3) {
+          	if(itemList.get(0).rarity.equals("Common") && itemList.get(1).rarity.equals("Common") && itemList.get(2).rarity.equals("Common")) {
+          		return "Great";
+          	} else
+          	if(itemList.get(0).rarity.equals("Great") && itemList.get(1).rarity.equals("Great") && itemList.get(2).rarity.equals("Great")) {
+          		return "Rare";
+          	}
+          	else
+          	if(itemList.get(0).rarity.equals("Rare") && itemList.get(1).rarity.equals("Rare") && itemList.get(2).rarity.equals("Rare")) {
+          		 return "Epic";
+          	}
+          	else return null;
+          }
+    	   return null;
+    }
+}
+
+public class ItemUpgradeSystem {
+    public static void main(String[] args) {
+        Inventory inventory = new Inventory();
+        
+        inventory.addItem(new Item("Iron Sword", "Rare", 0));
+        inventory.addItem(new Item("Iron Sword", "Rare", 0));
+        inventory.addItem(new Item("Iron Sword", "Rare", 0));
+        
+        inventory.displayInventory();
+        
+        inventory.upgradeItem("Iron Sword");
+        inventory.displayInventory();
+    }
+}
+
